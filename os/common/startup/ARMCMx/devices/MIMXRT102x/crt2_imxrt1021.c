@@ -1,6 +1,7 @@
 
 #include <stdint.h>
 #include "MIMXRT1021.h"
+#include "cmparams.h"
 
 extern void ResetHandler(void);
 extern unsigned long _estack;
@@ -19,9 +20,9 @@ void __core_init(void) {
 
 #elif defined(__IMXRT1021__)
 	// IOMUXC_GPR_GPR17 = (uint32_t)&_flexram_bank_config;
-	IOMUXC_GPR_GPR17 = 0x000057A5;
-	IOMUXC_GPR_GPR16 = 0x00200007;
-	IOMUXC_GPR_GPR14 = 0x00760000;
+	IOMUXC_GPR->GPR17 = 0x000057A5;
+	IOMUXC_GPR->GPR16 = 0x00200007;
+	IOMUXC_GPR->GPR14 = 0x00760000;
 
     // Used in this format elsewhere in ChibiOS
     // (/os/hal/ports/common/ARMCMx/cache.h)
@@ -53,6 +54,18 @@ const uint32_t BootData[3] = {
 __attribute__ ((section(".csf"), used))
 const uint32_t hab_csf[768];	// placeholder for HAB signature
 
+__attribute__ ((section(".dcd"), used))
+const uint32_t dcdTable[64] = {
+    0x410020D2,         // Version,Length,Tag   (Header)
+
+    // This may not be needed if __core_init() is safe
+    0xCC001C04,         // Write CMD, Length, Location Byte Size
+    // Address,Value
+    0x400AC044,0x000057A5,  // IOMUXC_GPR_GPR17
+    0x400AC040,0x00200007,  // IOMUXC_GPR_GPR16
+    0x400AC038,0x00760000   // IOMUXC_GPR_GPR14
+};
+
 
 __attribute__ ((section(".ivt"), used))
 const uint32_t ImageVectorTable[8] = {
@@ -66,17 +79,6 @@ const uint32_t ImageVectorTable[8] = {
 	0			            // reserved
 };
 
-
-__attribute__ ((section(".dcd"), used))
-const uint32_t dcdTable[64] = {
-    0x410020D2,         // Version,Length,Tag   (Header)
-
-    // This may not be needed if __core_init() is safe
-    0xCC001C04,         // Write CMD, Length, Location Byte Size
-    IOMUXC_GPR_GPR17,0x000057A5,    // Address,Value
-    IOMUXC_GPR_GPR16,0x00200007,    // ...
-    IOMUXC_GPR_GPR14,0x00760000
-};
 
 
 // Since uint32_t is 32bits the 1 value has 4 bytes (as in reference manual)
