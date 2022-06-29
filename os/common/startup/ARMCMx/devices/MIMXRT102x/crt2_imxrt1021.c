@@ -3,7 +3,7 @@
 #include "MIMXRT1021.h"
 #include "cmparams.h"
 
-extern void ResetHandler(void);
+extern void Reset_Handler(void);
 extern unsigned long _estack;
 extern unsigned long _flashimagelen;
 
@@ -70,7 +70,7 @@ const uint32_t dcdTable[64] = {
 __attribute__ ((section(".ivt"), used))
 const uint32_t ImageVectorTable[8] = {
 	0x432000D1,		        // header
-	(uint32_t)&ResetHandler,// program entry
+	(uint32_t)&Reset_Handler,// program entry
 	0,			            // reserved
 	(uint32_t)dcdTable,	// dcd
 	(uint32_t)BootData,	    // abs address of boot data

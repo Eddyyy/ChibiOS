@@ -50,8 +50,8 @@ MEMORY
 {
     flash0 (RX) : org = 0x60002400, len = 8182k     /* text 8M-10k */
     flash1 (RX) : org = 0x60002000, len = 2k        /* interrupts */
-    flash2 (RX) : org = 0x60000000, len = 4k        /* flash_config */
-    flash3 (RX) : org = 0x60001000, len = 4k        /* ivt */
+    flash2 (RX) : org = 0x60000000, len = 8k        /* ivt+flash_config */
+    flash3 (RX) : org = 0x60000000, len = 0
     flash4 (RX) : org = 0x00000000, len = 0
     flash5 (RX) : org = 0x00000000, len = 0
     flash6 (RX) : org = 0x00000000, len = 0
@@ -118,16 +118,18 @@ INCLUDE rules_stacks.ld
 /*===========================================================================*/
 
 /* Idea for boot data definition */
+REGION_ALIAS("BOOT_IMAGE", flash2);
+
 SECTIONS 
 {
   	.text.headers : {
 		KEEP(*(.flashconfig))
 		FILL(0xFF)
-		. = ORIGIN(FLASH) + 0x1000;
+		. = ORIGIN(flash2) + 0x1000;
 		KEEP(*(.ivt))
 		KEEP(*(.bootdata))
 		. = ALIGN(1024);
-	} > FLASH
+	} > BOOT_IMAGE
 }
 
 
