@@ -7,7 +7,7 @@ extern void Reset_Handler(void);
 extern unsigned long _estack;
 extern unsigned long _flashimagelen;
 
-void __core_init(void) {
+void __cpu_init(void) {
 
     // Need to add 
 #if defined(__IMXRT1062__)
