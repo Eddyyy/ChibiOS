@@ -59,9 +59,11 @@ const uint32_t dcdTable[64] = {
     0x410020D2,         // Version,Length,Tag   (Header)
 
     // This may not be needed if __core_init() is safe
+    // Small gdb testing suggests this might not have an effect
+    // But also that __core_init() may be safe
     0xCC001C04,         // Write CMD, Length, Location Byte Size
     // Address,Value
-    0x400AC044,0x000057A5,  // IOMUXC_GPR_GPR17
+    0x400AC044,0x000057A5,  // IOMUXC_GPR_GPR17 5FA5, 57A5
     0x400AC040,0x00200007,  // IOMUXC_GPR_GPR16
     0x400AC038,0x00760000   // IOMUXC_GPR_GPR14
 };
