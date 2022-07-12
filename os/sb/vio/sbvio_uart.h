@@ -18,17 +18,17 @@
 */
 
 /**
- * @file    sb/vhal/sbvhal_pal.h
- * @brief   ARM SandBox host Virtual HAL PAL macros and structures.
+ * @file    sb/vhal/sbvio_uart.h
+ * @brief   ARM SandBox host Virtual UART macros and structures.
  *
- * @addtogroup ARM_SANDBOX_HOST_VHAL
+ * @addtogroup ARM_SANDBOX_HOST_VIO_UART
  * @{
  */
 
-#ifndef SBVHAL_PAL_H
-#define SBVHAL_PAL_H
+#ifndef SBVIO_UART_H
+#define SBVIO_UART_H
 
-#if (SB_CFG_ENABLE_VHAL_PAL == TRUE) || defined(__DOXYGEN__)
+#if (VIO_CFG_ENABLE_UART == TRUE) || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Module constants.                                                         */
@@ -37,16 +37,7 @@
 /**
  * @brief   API handler for VHAL PAL driver.
  */
-#define SB_SVC200_HANDLER       sb_api_vhal_pal
-
-/**
- * @name    VPIO permissions
- * @{
- */
-#define VPIO_PERM_WRITE         1U
-#define VPIO_PERM_READ          2U
-#define VPIO_PERM_SETMODE       4U
-/** @} */
+#define SB_SVC201_HANDLER       sb_api_vio_uart
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -61,22 +52,34 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of a VPIO configuration structure.
+ * @brief   Type of a VIO UART unit representation.
  */
-typedef struct vhal_vpio_conf {
-  uint32_t        permissions;
-  ioportid_t      port;
-  ioportmask_t    mask;
-  uint32_t        offset;
-} vhal_vpio_conf_t;
+typedef struct vio_uart_unit {
+  SIODriver         *siop;
+} vio_uart_unit_t;
 
 /**
- * @brief   Type of a VHAL PAL instance configuration structure.
+ * @brief   Type of a VIO UART units structure.
  */
-typedef struct vhal_pal_conf {
+typedef struct vio_uart_units {
   uint32_t          n;
-  vhal_vpio_conf_t  vpio[];
-} vhal_pal_conf_t;
+  vio_uart_unit_t   units[];
+} vio_uart_units_t;
+
+/**
+ * @brief   Type of a VIO UART configuration representation.
+ */
+typedef struct vio_uart_config {
+  SIOConfig         *siocfgp;
+} vio_uart_config_t;
+
+/**
+ * @brief   Type of a VIO UARTs configuration structure.
+ */
+typedef struct vio_uart_configs {
+  uint32_t          n;
+  vio_uart_config_t   cfgs[];
+} vio_uart_configs_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
@@ -89,7 +92,7 @@ typedef struct vhal_pal_conf {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void sb_api_vhal_pal(struct port_extctx *ectxp);
+  void sb_api_vio_uart(struct port_extctx *ectxp);
 #ifdef __cplusplus
 }
 #endif
@@ -98,8 +101,8 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-#endif /* SB_CFG_ENABLE_VHAL == TRUE */
+#endif /* VIO_CFG_ENABLE_UART == TRUE */
 
-#endif /* SBVHAL_PAL_H */
+#endif /* SBVIO_UART_H */
 
 /** @} */

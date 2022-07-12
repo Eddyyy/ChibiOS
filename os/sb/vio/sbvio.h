@@ -1,6 +1,6 @@
 /*
     ChibiOS - Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,
-              2015,2016,2017,2018,2019,2020,2021,2022 Giovanni Di Sirio.
+              2015,2016,2017,2018,2019,2020,2021 Giovanni Di Sirio.
 
     This file is part of ChibiOS.
 
@@ -18,95 +18,25 @@
 */
 
 /**
- * @file    sb/common/sbsysc.h
- * @brief   Sandbox syscalls common macros and structures.
+ * @file    sbvio.h
+ * @brief   ARM SandBox host Virtual I/O macros and structures.
  *
- * @addtogroup ARM_SANDBOX_SYSCALLS
+ * @addtogroup ARM_SANDBOX_HOST_VIO
  * @{
  */
 
-#ifndef SBSYSC_H
-#define SBSYSC_H
+#ifndef SBVIO_H
+#define SBVIO_H
+
+#if (SB_CFG_ENABLE_VIO == TRUE) || defined(__DOXYGEN__)
+
+#include "vioconf.h"
+#include "sbvio_gpio.h"
+#include "sbvio_uart.h"
 
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
-
-/**
- * @name    Syscall codes
- * @{
- */
-#define SB_SYSC_POSIX           0
-#define SB_SYSC_EXIT            1
-#define SB_SYSC_GET_SYSTIME     2
-#define SB_SYSC_GET_FREQUENCY   3
-#define SB_SYSC_SLEEP           4
-#define SB_SYSC_SLEEP_UNTIL     5
-#define SB_SYSC_MESSAGE_WAIT    6
-#define SB_SYSC_MESSAGE_REPLY   7
-#define SB_SYSC_EVENT_WAIT_ONE  8
-#define SB_SYSC_EVENT_WAIT_ANY  9
-#define SB_SYSC_EVENT_WAIT_ALL  10
-#define SB_SYSC_EVENT_BROADCAST 11
-#define SB_SYSC_LOADELF         12
-#define SB_SYSC_VHAL_PAL        200
-#define SB_SYSC_VRQ_SET_ALARM   245
-#define SB_SYSC_VRQ_RESET_ALARM 246
-#define SB_SYSC_VRQ_WAIT        247
-#define SB_SYSC_VRQ_SETWT       248
-#define SB_SYSC_VRQ_CLRWT       249
-#define SB_SYSC_VRQ_SETEN       250
-#define SB_SYSC_VRQ_CLREN       251
-#define SB_SYSC_VRQ_DISABLE     252
-#define SB_SYSC_VRQ_ENABLE      253
-#define SB_SYSC_VRQ_GETISR      254
-#define SB_SYSC_VRQ_RETURN      255
-/** @} */
-
-/**
- * @name    Posix syscall sub-codes
- * @{
- */
-#define SB_POSIX_OPEN           1
-#define SB_POSIX_CLOSE          2
-#define SB_POSIX_DUP            3
-#define SB_POSIX_DUP2           4
-#define SB_POSIX_FSTAT          5
-#define SB_POSIX_READ           6
-#define SB_POSIX_WRITE          7
-#define SB_POSIX_LSEEK          8
-#define SB_POSIX_GETDENTS       9
-#define SB_POSIX_CHDIR          10
-#define SB_POSIX_GETCWD         11
-#define SB_POSIX_UNLINK         12
-#define SB_POSIX_RENAME         13
-#define SB_POSIX_MKDIR          14
-#define SB_POSIX_RMDIR          15
-#define SB_POSIX_STAT           16
-/** @} */
-
-/**
- * @name    Virtual GPIO syscall sub-codes
- * @{
- */
-#define SB_VGPIO_WRITE          0
-#define SB_VGPIO_SET            1
-#define SB_VGPIO_CLEAR          2
-#define SB_VGPIO_TOGGLE         3
-#define SB_VGPIO_READLATCH      4
-#define SB_VGPIO_READ           5
-#define SB_VGPIO_SETMODE        6
-/** @} */
-
-/**
- * @name    Virtual UART syscall sub-codes
- * @{
- */
-#define SB_VUART_INIT           0
-#define SB_VUART_DEINIT         1
-#define SB_VUART_WRITE          2
-#define SB_VUART_READ           3
-/** @} */
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -116,9 +46,40 @@
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
 
+/* Checks on configuration options.*/
+#if !defined(VIO_CFG_ENABLE_GPIO) || defined(__DOXYGEN__)
+#error "VIO_CFG_ENABLE_GPIO not defined in vioconf.h"
+#endif
+
+#if !defined(VIO_CFG_ENABLE_UART) || defined(__DOXYGEN__)
+#error "VIO_CFG_ENABLE_UART not defined in vioconf.h"
+#endif
+
 /*===========================================================================*/
 /* Module data structures and types.                                         */
 /*===========================================================================*/
+
+/**
+ * @brief   Type of a VIO instance configuration structure.
+ */
+typedef struct vio_conf {
+#if (VIO_CFG_ENABLE_GPIO == TRUE) || defined(__DOXYGEN__)
+  /**
+   * @brief   Virtual GPIO units.
+   */
+  const vio_gpio_units_t        *gpios;
+#endif
+#if (VIO_CFG_ENABLE_UART == TRUE) || defined(__DOXYGEN__)
+  /**
+   * @brief   Virtual UART units.
+   */
+  const vio_uart_units_t        *uarts;
+  /**
+   * @brief   Virtual UART configurations.
+   */
+  const vio_uart_configs_t      *uartconfs;
+#endif
+} vio_conf_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
@@ -131,7 +92,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #ifdef __cplusplus
 }
 #endif
@@ -140,6 +100,8 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-#endif /* SBSYSC_H */
+#endif /* SB_CFG_ENABLE_VIO == TRUE */
+
+#endif /* SBVIO_H */
 
 /** @} */

@@ -18,14 +18,16 @@
 */
 
 /**
- * @file    ARMvx-M-SB/chcore.c
- * @brief   ARMvx-M-SB port code.
+ * @file    sb/vhal/sbvio_gpio.c
+ * @brief   ARM SandBox host Virtual GPIO code.
  *
- * @addtogroup ARMVXM_SB_CORE
+ * @addtogroup ARM_SANDBOX_HOST_VIO_GPIO
  * @{
  */
 
-#include "ch.h"
+#include "sb.h"
+
+#if (VIO_CFG_ENABLE_GPIO == TRUE) || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Module local definitions.                                                 */
@@ -48,42 +50,66 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Module interrupt handlers.                                                */
-/*===========================================================================*/
-
-
-CH_IRQ_HANDLER(__sb_vector0) {
-
-  CH_IRQ_PROLOGUE();
-
-  chSysLockFromISR();
-  chSysTimerHandlerI();
-  chSysUnlockFromISR();
-
-  CH_IRQ_EPILOGUE();
-}
-
-/*===========================================================================*/
 /* Module exported functions.                                                */
 /*===========================================================================*/
 
-/**
- * @brief   Port-related initialization code.
- *
- * @param[in, out] oip  pointer to the @p os_instance_t structure
- *
- * @notapi
- */
-void port_init(os_instance_t *oip) {
+void sb_api_vio_gpio(struct port_extctx *ectxp) {
+  sb_class_t *sbp = (sb_class_t *)chThdGetSelfX()->ctx.syscall.p;
+  uint32_t sub = (unsigned)ectxp->r0;
+  uint32_t unit = (unsigned)ectxp->r1;
+  const vio_gpio_unit_t *unitp;
+  ectxp->r0 = 0U;
 
-  (void)oip;
+  if (unit >= sbp->config->vioconf->gpios->n) {
+    return;
+  }
 
-  /* Starting in a known IRQ configuration.*/
-  port_disable();
+  unitp = &sbp->config->vioconf->gpios->units[unit];
 
-  /* Enabling alarm VRQ.*/
-  __sb_vrq_seten(1U << 0);
-  sbSetAlarm(sbGetFrequency() / CH_CFG_ST_FREQUENCY, true);
+  switch (sub) {
+  case SB_VGPIO_WRITE:
+    if ((unitp->permissions & VIO_GPIO_PERM_WRITE) != 0U) {
+      palWriteGroup(unitp->port, unitp->mask, unitp->offset, ectxp->r2);
+    }
+    break;
+  case SB_VGPIO_SET:
+    if ((unitp->permissions & VIO_GPIO_PERM_WRITE) != 0U) {
+      uint32_t val = palReadGroup(unitp->port, unitp->mask, unitp->offset);
+      palWriteGroup(unitp->port, unitp->mask, unitp->offset, ectxp->r2 | val);
+    }
+    break;
+  case SB_VGPIO_CLEAR:
+    if ((unitp->permissions & VIO_GPIO_PERM_WRITE) != 0U) {
+      uint32_t val = palReadGroup(unitp->port, unitp->mask, unitp->offset);
+      palWriteGroup(unitp->port, unitp->mask, unitp->offset, ectxp->r2 & ~val);
+    }
+    break;
+  case SB_VGPIO_TOGGLE:
+    if ((unitp->permissions & VIO_GPIO_PERM_WRITE) != 0U) {
+      uint32_t val = palReadGroup(unitp->port, unitp->mask, unitp->offset);
+      palWriteGroup(unitp->port, unitp->mask, unitp->offset, ectxp->r2 ^ val);
+    }
+    break;
+  case SB_VGPIO_READLATCH:
+    if ((unitp->permissions & VIO_GPIO_PERM_WRITE) != 0U) {
+      ectxp->r0 = palReadGroupLatch(unitp->port, unitp->mask, unitp->offset);
+    }
+    break;
+  case SB_VGPIO_READ:
+    if ((unitp->permissions & VIO_GPIO_PERM_READ) != 0U) {
+      ectxp->r0 = palReadGroup(unitp->port, unitp->mask, unitp->offset);
+    }
+    break;
+  case SB_VGPIO_SETMODE:
+    if ((unitp->permissions & VIO_GPIO_PERM_SETMODE) != 0U) {
+      /* TODO */
+    }
+    break;
+  default:
+    return;
+  }
 }
+
+#endif /* VIO_CFG_ENABLE_GPIO == TRUE */
 
 /** @} */

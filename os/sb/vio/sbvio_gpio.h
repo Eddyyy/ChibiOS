@@ -18,24 +18,35 @@
 */
 
 /**
- * @file    sb/vhal/sbvhal.h
- * @brief   ARM SandBox host Virtual HAL macros and structures.
+ * @file    sb/vhal/sbvio_gpio.h
+ * @brief   ARM SandBox host Virtual GPIO macros and structures.
  *
- * @addtogroup ARM_SANDBOX_HOST_VHAL
+ * @addtogroup ARM_SANDBOX_HOST_VIO_GPIO
  * @{
  */
 
-#ifndef SBVHAL_H
-#define SBVHAL_H
+#ifndef SBVIO_GPIO_H
+#define SBVIO_GPIO_H
 
-#if (SB_CFG_ENABLE_VHAL == TRUE) || defined(__DOXYGEN__)
-
-#include "vhalconf.h"
-#include "sbvhal_pal.h"
+#if (VIO_CFG_ENABLE_GPIO == TRUE) || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Module constants.                                                         */
 /*===========================================================================*/
+
+/**
+ * @brief   API handler for VHAL PAL driver.
+ */
+#define SB_SVC200_HANDLER       sb_api_vio_gpio
+
+/**
+ * @name    VIO GPIO permissions
+ * @{
+ */
+#define VIO_GPIO_PERM_WRITE     1U
+#define VIO_GPIO_PERM_READ      2U
+#define VIO_GPIO_PERM_SETMODE   4U
+/** @} */
 
 /*===========================================================================*/
 /* Module pre-compile time settings.                                         */
@@ -50,16 +61,22 @@
 /*===========================================================================*/
 
 /**
- * @brief   Type of a VHAL instance configuration structure.
+ * @brief   Type of a VIO GPIO unit representation.
  */
-typedef struct vhal_conf {
-#if (SB_CFG_ENABLE_VHAL_PAL == TRUE) || defined(__DOXYGEN__)
-  /**
-   * @brief   VPAL configuration.
-   */
-  const vhal_pal_conf_t     *vpalconf;
-#endif
-} vhal_conf_t;
+typedef struct vio_gpio_unit {
+  uint32_t        permissions;
+  ioportid_t      port;
+  ioportmask_t    mask;
+  uint32_t        offset;
+} vio_gpio_unit_t;
+
+/**
+ * @brief   Type of a VIO GPIOs unit structure.
+ */
+typedef struct vio_gpio_units {
+  uint32_t          n;
+  vio_gpio_unit_t   units[];
+} vio_gpio_units_t;
 
 /*===========================================================================*/
 /* Module macros.                                                            */
@@ -72,6 +89,7 @@ typedef struct vhal_conf {
 #ifdef __cplusplus
 extern "C" {
 #endif
+  void sb_api_vio_gpio(struct port_extctx *ectxp);
 #ifdef __cplusplus
 }
 #endif
@@ -80,8 +98,8 @@ extern "C" {
 /* Module inline functions.                                                  */
 /*===========================================================================*/
 
-#endif /* SB_CFG_ENABLE_VHAL == TRUE */
+#endif /* VIO_CFG_ENABLE_GPIO == TRUE */
 
-#endif /* SBVHAL_H */
+#endif /* SBVIO_GPIO_H */
 
 /** @} */
